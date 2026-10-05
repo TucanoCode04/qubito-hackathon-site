@@ -1,0 +1,366 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Superposition Title</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg-0: #0b0614;
+    --bg-1: #1a0b33;
+    --violet: #a855f7;
+    --violet-2: #c084fc;
+    --lilac: #e9d5ff;
+    --cyan: #67e8f9;
+    --text: #f5f0ff;
+    --muted: #b9a8d9;
+    --mono: 'JetBrains Mono', ui-monospace, monospace;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background:
+      radial-gradient(900px 600px at 15% 20%, rgba(147,51,234,.28), transparent 60%),
+      radial-gradient(800px 600px at 90% 80%, rgba(192,38,211,.18), transparent 60%),
+      radial-gradient(circle at 1px 1px, rgba(192,132,252,.10) 1px, transparent 0) 0 0 / 28px 28px,
+      linear-gradient(180deg, var(--bg-1), var(--bg-0) 70%);
+    background-attachment: fixed;
+    color: var(--text);
+    font-family: 'Space Grotesk', system-ui, sans-serif;
+    overflow-x: hidden;
+  }
+
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 10;
+    display: flex; justify-content: space-between; align-items: center; padding: 22px 6vw;
+    background: linear-gradient(180deg, rgba(11,6,20,.85), transparent);
+  }
+  .logo { font-family: var(--mono); font-weight: 600; font-size: 1.15rem; color: var(--text); text-decoration: none; }
+  .logo span { color: var(--violet-2); }
+  .lang { display: flex; border: 1px solid rgba(192,132,252,.35); border-radius: 999px; overflow: hidden; }
+  .lang button {
+    font: 600 .8rem var(--mono); padding: 7px 14px; border: 0; cursor: pointer;
+    background: transparent; color: var(--muted); transition: background .2s, color .2s;
+  }
+  .lang button[aria-pressed="true"] { background: rgba(147,51,234,.5); color: var(--text); }
+
+  /* ---------- hero ---------- */
+  .hero {
+    min-height: 100svh; display: flex; flex-direction: column; justify-content: center;
+    padding: 110px 6vw 60px;
+  }
+  .eyebrow { font-family: var(--mono); font-size: clamp(.75rem, 1.4vw, .95rem); letter-spacing: .18em; text-transform: uppercase; color: var(--violet-2); }
+  h1.title {
+    font-size: clamp(3.2rem, 13vw, 11rem); font-weight: 700; line-height: .9; letter-spacing: -.035em;
+    margin: 18px 0 26px; cursor: crosshair; user-select: none;
+  }
+  h1.title .qw { display: block; }
+  h1.title .qw:nth-of-type(2) .ql { color: var(--violet-2); }
+  .sub { font-size: clamp(1.2rem, 2.6vw, 2rem); font-weight: 500; color: var(--lilac); }
+  .date { font-family: var(--mono); font-size: clamp(.95rem, 1.6vw, 1.2rem); color: var(--cyan); margin-top: 10px; }
+  .controls { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 36px; align-items: center; }
+  .btn {
+    font: 600 1rem 'Space Grotesk', sans-serif; cursor: pointer; text-decoration: none;
+    padding: 13px 22px; border-radius: 12px; border: 1px solid transparent; transition: transform .15s, box-shadow .2s, background .2s;
+  }
+  .btn-primary { background: linear-gradient(135deg, #9333ea, #c026d3); color: #fff; box-shadow: 0 8px 30px rgba(168,85,247,.45); }
+  .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 12px 40px rgba(168,85,247,.6); }
+  .btn-ghost { color: var(--lilac); border-color: rgba(192,132,252,.4); background: rgba(88,28,135,.15); }
+  .btn-ghost:hover { background: rgba(88,28,135,.35); }
+  .hint { font-family: var(--mono); font-size: .78rem; color: rgba(185,168,217,.75); margin-top: 26px; max-width: 60ch; }
+
+  /* ---------- superposed letters ---------- */
+  .qw { display: inline-block; white-space: nowrap; }
+  .ql { display: inline-block; text-align: center; will-change: transform, filter; }
+  .ql.sup {
+    opacity: var(--o, .7);
+    filter: blur(.6px);
+    text-shadow:
+      var(--gx, 0) 0 0 rgba(168,85,247,.85),
+      calc(var(--gx, 0) * -1) 0 0 rgba(103,232,249,.6),
+      0 0 18px rgba(168,85,247,.6);
+  }
+  .ql.flash { animation: collapse .55s cubic-bezier(.2,.8,.2,1); }
+  @keyframes collapse {
+    0%   { transform: scale(1.28); color: #fff; text-shadow: 0 0 22px #fff, 0 0 44px #a855f7; }
+    100% { transform: none; text-shadow: 0 0 0 transparent; }
+  }
+
+  /* ---------- observer ring (mouse only) ---------- */
+  .observer {
+    position: fixed; left: 0; top: 0; z-index: 20; pointer-events: none;
+    width: 150px; height: 150px; margin: -75px 0 0 -75px; border-radius: 50%;
+    border: 1px dashed rgba(103,232,249,.35);
+    opacity: 0; transition: opacity .3s, border-color .3s, background .3s;
+  }
+  .observer::after {
+    content: "observing"; position: absolute; left: 50%; top: calc(100% + 6px); transform: translateX(-50%);
+    font: .65rem var(--mono); letter-spacing: .14em; color: rgba(103,232,249,.7); text-transform: uppercase;
+  }
+  .observer.on { opacity: 1; }
+  .observer.hot { border-color: rgba(103,232,249,.85); background: radial-gradient(circle, rgba(103,232,249,.10), transparent 70%); }
+  @media (pointer: coarse) { .observer { display: none; } }
+
+  /* ---------- sections that collapse on scroll ---------- */
+  section.block { padding: 18vh 6vw; border-top: 1px solid rgba(192,132,252,.12); }
+  section.block .idx { font-family: var(--mono); color: var(--violet-2); font-size: .85rem; letter-spacing: .14em; }
+  section.block h2 { font-size: clamp(2.2rem, 7vw, 5.5rem); line-height: 1; letter-spacing: -.03em; margin: 14px 0 18px; }
+  section.block p { color: var(--muted); font-size: clamp(1.05rem, 1.8vw, 1.3rem); max-width: 50ch; line-height: 1.55; }
+
+  .counter {
+    position: fixed; left: 18px; bottom: 16px; z-index: 10;
+    font: .75rem var(--mono); color: var(--muted);
+    padding: 6px 12px; border-radius: 999px; background: rgba(20,8,40,.7); border: 1px solid rgba(192,132,252,.2);
+  }
+  .counter b { color: var(--cyan); }
+  footer { padding: 40px 6vw 80px; font: .8rem var(--mono); color: rgba(185,168,217,.6); }
+</style>
+</head>
+<body>
+
+<nav>
+  <a class="logo" href="#">|qubito<span>⟩</span></a>
+  <div class="lang" role="group" aria-label="Language">
+    <button data-lang="en" aria-pressed="true">EN</button>
+    <button data-lang="it" aria-pressed="false">IT</button>
+  </div>
+</nav>
+
+<header class="hero">
+  <p class="eyebrow q" data-observe data-en="Qubito · Politecnico di Torino" data-it="Qubito · Politecnico di Torino"></p>
+  <h1 class="title q" data-observe data-en="QUBITO HACKATHON" data-it="QUBITO HACKATHON"></h1>
+  <p class="sub q" data-observe data-en="24 hours of quantum computing" data-it="24 ore di calcolo quantistico"></p>
+  <p class="date q" data-observe data-en="11 — 13 December 2026" data-it="11 — 13 dicembre 2026"></p>
+  <div class="controls">
+    <button class="btn btn-primary" id="measure" data-en="Measure |ψ⟩" data-it="Misura |ψ⟩"></button>
+    <button class="btn btn-ghost" id="decohere" data-en="Back to superposition" data-it="Torna in sovrapposizione"></button>
+  </div>
+  <p class="hint" data-en="Move your cursor over the text: observing it collapses the superposition. Switching language re-measures everything."
+                  data-it="Passa il cursore sul testo: osservarlo fa collassare la sovrapposizione. Cambiare lingua lo rimisura."></p>
+</header>
+
+<section class="block">
+  <span class="idx">01 · 11.12</span>
+  <h2 class="q" data-scroll data-en="Company talks" data-it="Talk delle aziende"></h2>
+  <p data-en="On the afternoon of 11 December, partner companies present real problems and the quantum tools to tackle them."
+     data-it="Nel pomeriggio dell'11 dicembre le aziende partner presentano problemi reali e gli strumenti quantistici per affrontarli."></p>
+</section>
+<section class="block">
+  <span class="idx">02 · 12.12 → 13.12</span>
+  <h2 class="q" data-scroll data-en="24-hour hackathon" data-it="Hackathon di 24 ore"></h2>
+  <p data-en="Teams, mentors, qubits and very little sleep. Build something that only a quantum computer could do."
+     data-it="Team, mentor, qubit e pochissimo sonno. Costruite qualcosa che solo un computer quantistico potrebbe fare."></p>
+</section>
+<section class="block">
+  <span class="idx">03 · apply</span>
+  <h2 class="q" data-scroll data-en="Applications open soon" data-it="Candidature in arrivo"></h2>
+  <p data-en="Until you apply, you are both in and out of the hackathon."
+     data-it="Finché non ti candidi, sei sia dentro che fuori dall'hackathon."></p>
+</section>
+<footer data-en="Demo · superposition title effect" data-it="Demo · effetto titolo in sovrapposizione"></footer>
+
+<div class="observer" aria-hidden="true"></div>
+<div class="counter" aria-hidden="true"><span data-en="measurements" data-it="misure"></span>: <b id="count">000</b></div>
+
+<script>
+(() => {
+  const RM = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const COARSE = matchMedia('(pointer: coarse)').matches;
+  const GLYPHS = [...'ψφθΨΦΩαβγλħΣΠ∂∇⊗⊕†∞01⟩⟨'];
+  const OBSERVE_R = 75;
+  let lang = 'en';
+  let count = 0;
+  const countEl = document.getElementById('count');
+  const live = new Set(); // all superposed letters, iterated by the ticker
+
+  // ---------- one piece of "quantum" text ----------
+  class QText {
+    constructor(el) { this.el = el; this.letters = []; this.gen = 0; }
+
+    set(text, superposed) {
+      this.gen++;
+      this.letters.forEach(l => live.delete(l));
+      this.el.textContent = '';
+      this.el.setAttribute('aria-label', text);
+      this.letters = [];
+      text.split(' ').forEach((word, i, words) => {
+        const w = document.createElement('span');
+        w.className = 'qw'; w.setAttribute('aria-hidden', 'true');
+        for (const ch of word) {
+          const s = document.createElement('span');
+          s.className = 'ql'; s.textContent = ch;
+          w.appendChild(s);
+          this.letters.push({ el: s, final: ch, sup: false, next: 0 });
+        }
+        this.el.appendChild(w);
+        if (i < words.length - 1) this.el.appendChild(document.createTextNode(' '));
+      });
+      // lock each letter's width (in em) to its real glyph, so flickering doesn't shift the layout
+      const fs = parseFloat(getComputedStyle(this.el).fontSize);
+      for (const l of this.letters) l.el.style.width = `${l.el.getBoundingClientRect().width / fs}em`;
+      if (superposed && !RM) this.letters.forEach(decohere);
+    }
+
+    collapseWave(step = 45, delay = 0) {
+      const gen = this.gen;
+      this.letters.forEach((l, i) =>
+        setTimeout(() => { if (this.gen === gen) collapse(l); }, delay + i * step + Math.random() * 40));
+    }
+
+    decohereAll() { this.gen++; this.letters.forEach(decohere); }
+    get anySup() { return this.letters.some(l => l.sup); }
+  }
+
+  function decohere(l) {
+    if (RM || l.sup) return;
+    l.sup = true; l.next = 0;
+    l.el.classList.remove('flash'); l.el.classList.add('sup');
+    live.add(l);
+  }
+
+  function collapse(l) {
+    if (!l.sup) return;
+    l.sup = false; live.delete(l);
+    l.el.textContent = l.final;
+    l.el.classList.remove('sup');
+    void l.el.offsetWidth; // restart the flash animation
+    l.el.classList.add('flash');
+    countEl.textContent = String(++count).padStart(3, '0');
+  }
+
+  // ---------- setup ----------
+  const qEls = [...document.querySelectorAll('.q')];
+  const q = new Map(qEls.map(el => [el, new QText(el)]));
+  const heroQ = qEls.filter(el => el.hasAttribute('data-observe')).map(el => q.get(el));
+  const scrollQ = qEls.filter(el => el.hasAttribute('data-scroll')).map(el => q.get(el));
+  const plainEls = [...document.querySelectorAll('[data-en]:not(.q)')];
+
+  function applyPlainText() {
+    for (const el of plainEls) el.textContent = el.dataset[lang];
+    document.documentElement.lang = lang;
+  }
+
+  let autoTimer;
+  function scheduleAutoMeasure(ms) {
+    // keep the hero readable: if nobody observes it, it measures itself
+    clearTimeout(autoTimer);
+    autoTimer = setTimeout(() => heroQ.forEach((t, i) => t.anySup && t.collapseWave(45, i * 250)), ms);
+  }
+
+  function init() {
+    applyPlainText();
+    for (const t of q.values()) t.set(t.el.dataset[lang], true);
+    scheduleAutoMeasure(COARSE ? 1200 : 5000);
+    setupScroll();
+    requestAnimationFrame(tick);
+  }
+
+  // ---------- ticker: flicker superposed letters ----------
+  let nextFluct = performance.now() + 4000;
+  function tick(now) {
+    for (const l of live) {
+      if (now < l.next) continue;
+      l.next = now + 45 + Math.random() * 110;
+      l.el.textContent = Math.random() < .22 ? l.final : GLYPHS[Math.random() * GLYPHS.length | 0];
+      l.el.style.setProperty('--gx', `${((Math.random() * 2 - 1) * .08).toFixed(3)}em`);
+      l.el.style.setProperty('--o', (.45 + Math.random() * .5).toFixed(2));
+    }
+    // occasional "quantum fluctuation": one measured letter briefly flickers
+    if (!RM && now > nextFluct) {
+      nextFluct = now + 2500 + Math.random() * 3000;
+      const title = heroQ[1];
+      const settled = title.letters.filter(l => !l.sup);
+      if (settled.length === title.letters.length) {
+        const l = settled[Math.random() * settled.length | 0];
+        decohere(l);
+        setTimeout(() => collapse(l), 350 + Math.random() * 300);
+      }
+    }
+    moveObserver();
+    requestAnimationFrame(tick);
+  }
+
+  // ---------- observation with the mouse ----------
+  const ring = document.querySelector('.observer');
+  let mx = -999, my = -999, rx = -999, ry = -999, pending = false;
+
+  addEventListener('pointermove', e => {
+    if (e.pointerType !== 'mouse') return;
+    mx = e.clientX; my = e.clientY;
+    if (rx < -900) { rx = mx; ry = my; }
+    ring.classList.add('on');
+    if (!pending) { pending = true; requestAnimationFrame(observe); }
+  });
+  document.addEventListener('mouseleave', () => ring.classList.remove('on'));
+
+  function observe() {
+    pending = false;
+    let hot = false;
+    for (const t of heroQ) for (const l of t.letters) {
+      if (!l.sup) continue;
+      const r = l.el.getBoundingClientRect();
+      const d = Math.hypot(r.left + r.width / 2 - mx, r.top + r.height / 2 - my);
+      if (d < OBSERVE_R) collapse(l);
+      else if (d < OBSERVE_R * 2) hot = true;
+    }
+    ring.classList.toggle('hot', hot);
+  }
+
+  function moveObserver() {
+    if (rx < -900) return;
+    rx += (mx - rx) * .25; ry += (my - ry) * .25;
+    ring.style.transform = `translate(${rx}px, ${ry}px)`;
+  }
+
+  // tap on touch devices: re-run the whole superposition → measurement
+  document.querySelector('h1.title').addEventListener('click', () => {
+    if (!COARSE) return;
+    const t = heroQ[1]; t.decohereAll(); t.collapseWave(60, 500);
+  });
+
+  // ---------- buttons ----------
+  document.getElementById('measure').addEventListener('click', () => {
+    heroQ.forEach((t, i) => t.collapseWave(40, i * 180));
+  });
+  document.getElementById('decohere').addEventListener('click', () => {
+    heroQ.forEach(t => t.decohereAll());
+    scheduleAutoMeasure(COARSE ? 1500 : 8000);
+  });
+
+  // switching language = putting everything in superposition and measuring the other basis
+  document.querySelectorAll('[data-lang]').forEach(b => b.addEventListener('click', () => {
+    if (b.dataset.lang === lang) return;
+    lang = b.dataset.lang;
+    document.querySelectorAll('[data-lang]').forEach(x => x.setAttribute('aria-pressed', x === b));
+    applyPlainText();
+    for (const t of q.values()) {
+      const visible = isInView(t.el);
+      t.set(t.el.dataset[lang], true);
+      if (visible) t.collapseWave(35, 450);
+    }
+  }));
+
+  // ---------- section headings: collapse when scrolled into view ----------
+  function isInView(el) {
+    const r = el.getBoundingClientRect();
+    return r.bottom > 0 && r.top < innerHeight;
+  }
+  function setupScroll() {
+    const byEl = new Map(scrollQ.map(t => [t.el, t]));
+    const io = new IntersectionObserver(entries => {
+      for (const e of entries) {
+        const t = byEl.get(e.target);
+        if (e.isIntersecting) t.collapseWave(55, 150);
+        else t.decohereAll();
+      }
+    }, { threshold: .6 });
+    scrollQ.forEach(t => io.observe(t.el));
+  }
+
+  (document.fonts ? document.fonts.ready : Promise.resolve()).then(init);
+})();
+</script>
+</body>
+</html>

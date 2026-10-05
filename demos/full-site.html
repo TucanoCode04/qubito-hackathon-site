@@ -1,0 +1,1218 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Qubito Hackathon Demo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  /* Palette from qubito-website/assets/css/schemes/custom-colors.css */
+  :root {
+    --primary: #751f72;
+    --primary-700: #5e195b;
+    --primary-900: #300d2d;
+    --pink: #e08add;
+    --pink-soft: #f0dfee;
+    --blue: #4661a0;
+    --blue-2: #96acd4;
+    --bg-0: #080808;
+    --bg-1: #1a0a1a;
+    --text: #faf9fa;
+    --muted: #bfb0be;
+    --line: rgba(224,138,221,.16);
+    --mono: 'JetBrains Mono', ui-monospace, monospace;
+    --dock-w: 38vw;
+    --nav-h: 68px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: auto; }
+  body {
+    background:
+      radial-gradient(900px 600px at 10% 10%, rgba(117,31,114,.35), transparent 60%),
+      radial-gradient(800px 600px at 90% 90%, rgba(70,97,160,.18), transparent 60%),
+      radial-gradient(circle at 1px 1px, rgba(224,138,221,.09) 1px, transparent 0) 0 0 / 28px 28px,
+      linear-gradient(180deg, var(--bg-1), var(--bg-0) 70%);
+    background-attachment: fixed;
+    color: var(--text);
+    font-family: 'Space Grotesk', system-ui, sans-serif;
+    overflow-x: hidden;
+  }
+  a { color: var(--pink); }
+  :focus-visible { outline: 2px solid var(--pink); outline-offset: 3px; }
+
+  /* ---------- nav ---------- */
+  nav.top {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 30; height: var(--nav-h);
+    display: flex; align-items: center; gap: 28px; padding: 0 4vw;
+    background: linear-gradient(180deg, rgba(8,8,8,.92), rgba(8,8,8,.6));
+    backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--line);
+  }
+  .logo { font-family: var(--mono); font-weight: 600; font-size: 1.1rem; color: var(--text); text-decoration: none; white-space: nowrap; }
+  .logo span { color: var(--pink); }
+  .navlinks { display: flex; gap: 22px; margin-left: auto; }
+  .navlinks a { color: var(--muted); text-decoration: none; font-size: .93rem; transition: color .2s; position: relative; }
+  .navlinks a:hover, .navlinks a.active { color: var(--text); }
+  .navlinks a.active::after { content: ""; position: absolute; left: 0; right: 0; bottom: -6px; height: 2px; border-radius: 2px; background: var(--pink); }
+  .nav-right { display: flex; align-items: center; gap: 12px; }
+  .lang { display: flex; border: 1px solid rgba(224,138,221,.35); border-radius: 999px; overflow: hidden; }
+  .lang button {
+    font: 600 .78rem var(--mono); padding: 6px 12px; border: 0; cursor: pointer;
+    background: transparent; color: var(--muted); transition: background .2s, color .2s;
+  }
+  .lang button[aria-pressed="true"] { background: var(--primary); color: var(--text); }
+
+  .btn {
+    display: inline-block; font: 600 1rem 'Space Grotesk', sans-serif; cursor: pointer; text-decoration: none;
+    padding: 13px 22px; border-radius: 12px; border: 1px solid transparent;
+    transition: transform .15s, box-shadow .2s, background .2s;
+  }
+  .btn-sm { padding: 8px 14px; font-size: .88rem; border-radius: 10px; }
+  .btn-primary { background: linear-gradient(135deg, #8a2687, #cf6ccb); color: #fff; box-shadow: 0 8px 30px rgba(117,31,114,.55); }
+  .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 12px 40px rgba(224,138,221,.4); }
+  .btn-ghost { color: var(--pink-soft); border-color: rgba(224,138,221,.4); background: rgba(117,31,114,.15); }
+  .btn-ghost:hover { background: rgba(117,31,114,.35); }
+
+  /* ---------- layout ---------- */
+  main, footer { position: relative; z-index: 1; }
+  section.sec { padding: calc(var(--nav-h) + 9vh) 6vw 12vh; border-top: 1px solid var(--line); }
+  .idx { font-family: var(--mono); color: var(--pink); font-size: .8rem; letter-spacing: .12em; }
+  h2 { font-size: clamp(2.2rem, 5.5vw, 4.6rem); line-height: 1; letter-spacing: -.03em; margin: 14px 0 22px; }
+  .lead { color: var(--muted); font-size: clamp(1.05rem, 1.6vw, 1.25rem); max-width: 56ch; line-height: 1.6; }
+  .placeholder-tag {
+    display: inline-block; margin-left: 10px; vertical-align: middle;
+    font: 600 .62rem var(--mono); letter-spacing: .14em; text-transform: uppercase;
+    color: var(--blue-2); border: 1px dashed rgba(150,172,212,.5); padding: 3px 7px; border-radius: 6px;
+  }
+
+  /* ---------- hero ---------- */
+  .hero { min-height: 100svh; display: flex; flex-direction: column; justify-content: center; border-top: 0 !important; }
+  .eyebrow { font-family: var(--mono); font-size: clamp(.72rem, 1.2vw, .9rem); letter-spacing: .18em; text-transform: uppercase; color: var(--pink); }
+  h1.title {
+    font-size: clamp(3rem, 7vw, 7.5rem); font-weight: 700; line-height: .9; letter-spacing: -.035em;
+    margin: 18px 0 24px; cursor: crosshair; user-select: none;
+  }
+  h1.title .qw { display: block; }
+  h1.title .qw:nth-of-type(2) .ql { color: var(--pink); }
+  .sub { font-size: clamp(1.15rem, 2.2vw, 1.8rem); font-weight: 500; color: var(--pink-soft); }
+  .date { font-family: var(--mono); font-size: clamp(.95rem, 1.4vw, 1.15rem); color: var(--blue-2); margin-top: 10px; }
+  .countdown { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 14px; margin-top: 28px; font-family: var(--mono); }
+  .cd-ket { font-size: clamp(1.1rem, 2vw, 1.6rem); color: var(--text); font-weight: 600; font-variant-numeric: tabular-nums; }
+  .cd-ket .br { color: var(--pink); }
+  .cd-label { font-size: .8rem; color: var(--muted); letter-spacing: .08em; }
+  .controls { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 30px; }
+  .hint { font-family: var(--mono); font-size: .76rem; color: rgba(191,176,190,.75); margin-top: 26px; max-width: 62ch; line-height: 1.8; }
+  kbd {
+    font-family: var(--mono); font-size: .72rem; padding: 1px 6px; border-radius: 5px;
+    border: 1px solid rgba(224,138,221,.35); background: rgba(117,31,114,.3); color: var(--pink-soft);
+  }
+
+  /* ---------- superposed letters ---------- */
+  .qw { display: inline-block; white-space: nowrap; }
+  .ql { display: inline-block; text-align: center; will-change: transform, filter; }
+  .ql.sup {
+    opacity: var(--o, .7); filter: blur(.6px);
+    text-shadow:
+      var(--gx, 0) 0 0 rgba(224,138,221,.85),
+      calc(var(--gx, 0) * -1) 0 0 rgba(150,172,212,.6),
+      0 0 18px rgba(224,138,221,.5);
+  }
+  .ql.flash { animation: collapse .55s cubic-bezier(.2,.8,.2,1); }
+  @keyframes collapse {
+    0%   { transform: scale(1.28); color: #fff; text-shadow: 0 0 22px #fff, 0 0 44px var(--pink); }
+    100% { transform: none; text-shadow: 0 0 0 transparent; }
+  }
+  .observer {
+    position: fixed; left: 0; top: 0; z-index: 40; pointer-events: none;
+    width: 150px; height: 150px; margin: -75px 0 0 -75px; border-radius: 50%;
+    border: 1px dashed rgba(150,172,212,.35); opacity: 0; transition: opacity .3s, border-color .3s, background .3s;
+  }
+  .observer::after {
+    content: "observing"; position: absolute; left: 50%; top: calc(100% + 6px); transform: translateX(-50%);
+    font: .62rem var(--mono); letter-spacing: .14em; color: rgba(150,172,212,.75); text-transform: uppercase;
+  }
+  .observer.on { opacity: 1; }
+  .observer.hot { border-color: rgba(150,172,212,.9); background: radial-gradient(circle, rgba(150,172,212,.10), transparent 70%); }
+  @media (pointer: coarse) { .observer { display: none; } }
+
+  /* ---------- about ---------- */
+  .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 14px; margin-top: 40px; max-width: 760px; }
+  .stat { border: 1px solid var(--line); background: rgba(117,31,114,.12); border-radius: 16px; padding: 18px; }
+  .stat b { display: block; font-family: var(--mono); font-size: 1.9rem; color: var(--pink); }
+  .stat span { color: var(--muted); font-size: .9rem; }
+
+  /* ---------- programme (drawn like circuit wires) ---------- */
+  .days { display: grid; gap: 34px; margin-top: 40px; max-width: 820px; }
+  .day-head { display: flex; align-items: baseline; gap: 14px; margin-bottom: 14px; }
+  .day-head .ket { font: 600 1.05rem var(--mono); color: var(--pink); }
+  .day-head h3 { font-size: 1.25rem; font-weight: 600; }
+  .wire { position: relative; list-style: none; padding-left: 26px; }
+  .wire::before { content: ""; position: absolute; left: 6px; top: 6px; bottom: 6px; width: 2px; background: linear-gradient(var(--pink), var(--blue)); opacity: .5; }
+  .wire li { position: relative; display: grid; grid-template-columns: 74px 1fr; gap: 14px; align-items: start; padding: 9px 0; }
+  .wire li::before {
+    content: ""; position: absolute; left: -25px; top: 15px; width: 12px; height: 12px; border-radius: 3px;
+    background: var(--bg-1); border: 2px solid var(--pink);
+  }
+  .wire li.big::before { background: var(--pink); box-shadow: 0 0 14px var(--pink); }
+  .wire time { font: 600 .9rem var(--mono); color: var(--blue-2); padding-top: 2px; }
+  .wire strong { display: block; font-weight: 600; }
+  .wire small { color: var(--muted); font-size: .9rem; }
+
+  /* ---------- partners ---------- */
+  .tier { margin-top: 40px; }
+  .tier-label { font: 600 .72rem var(--mono); letter-spacing: .16em; text-transform: uppercase; color: var(--muted); display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
+  .tier-label::after { content: ""; flex: 1; height: 1px; background: var(--line); }
+  .logos { display: grid; gap: 14px; }
+  .logos.main   { grid-template-columns: 1fr; }
+  .logos.gold   { grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); }
+  .logos.silver { grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); }
+  .logos.comm   { grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); }
+  /* real logos: <a class="logo-card" href="..."><img src="..." alt="Company"></a>, shown grey, coloured on hover */
+  .logo-card {
+    display: grid; place-items: center; text-decoration: none;
+    border: 1px solid var(--line); background: rgba(255,255,255,.025); border-radius: 16px;
+    filter: grayscale(1) opacity(.65); transition: filter .25s, border-color .25s, transform .2s, background .25s;
+  }
+  .logo-card:hover { filter: none; border-color: rgba(224,138,221,.5); background: rgba(117,31,114,.15); transform: translateY(-2px); }
+  .logo-card img { max-width: 70%; max-height: 60%; object-fit: contain; }
+  .logos.main .logo-card { height: 170px; }
+  .logos.gold .logo-card { height: 120px; }
+  .logos.silver .logo-card { height: 86px; }
+  .logos.comm .logo-card { height: 72px; }
+  .ph { font: 700 1.05rem var(--mono); letter-spacing: .08em; background: linear-gradient(90deg, var(--pink), var(--blue-2)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .logos.main .ph { font-size: 1.7rem; }
+  .logos.silver .ph, .logos.comm .ph { font-size: .85rem; }
+  .become {
+    margin-top: 40px; display: flex; flex-wrap: wrap; gap: 18px; align-items: center; justify-content: space-between;
+    padding: 26px; border-radius: 18px; border: 1px dashed rgba(224,138,221,.45);
+    background: linear-gradient(135deg, rgba(117,31,114,.25), rgba(70,97,160,.15));
+  }
+  .become h3 { font-size: 1.3rem; margin-bottom: 4px; }
+  .become p { color: var(--muted); max-width: 46ch; }
+  .become .cta { display: flex; flex-wrap: wrap; gap: 10px; }
+
+  /* ---------- faq ---------- */
+  .faq { margin-top: 32px; max-width: 780px; display: grid; gap: 10px; }
+  .faq details { border: 1px solid var(--line); border-radius: 14px; background: rgba(255,255,255,.02); overflow: hidden; }
+  .faq summary {
+    cursor: pointer; list-style: none; padding: 16px 52px 16px 18px; font-weight: 600; position: relative;
+  }
+  .faq summary::-webkit-details-marker { display: none; }
+  .faq summary::after {
+    content: "|0⟩"; position: absolute; right: 16px; top: 50%; transform: translateY(-50%);
+    font: 600 .8rem var(--mono); color: var(--muted); transition: color .2s;
+  }
+  .faq details[open] summary::after { content: "|1⟩"; color: var(--pink); }
+  .faq details p { padding: 0 18px 18px; color: var(--muted); line-height: 1.6; }
+
+  /* ---------- team ---------- */
+  .team { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 16px; margin-top: 36px; max-width: 900px; }
+  .member { border: 1px solid var(--line); border-radius: 16px; padding: 18px; background: rgba(255,255,255,.02); text-align: center; }
+  .avatar {
+    width: 74px; height: 74px; margin: 0 auto 12px; border-radius: 50%; display: grid; place-items: center;
+    font: 600 1.2rem var(--mono); color: #fff;
+    background: radial-gradient(circle at 30% 30%, var(--pink), var(--primary) 60%, var(--primary-900));
+  }
+  .member strong { display: block; }
+  .member small { color: var(--muted); }
+
+  /* ---------- apply form ---------- */
+  form.apply { margin-top: 36px; max-width: 780px; display: grid; gap: 18px; grid-template-columns: 1fr 1fr; }
+  .field { display: grid; gap: 7px; }
+  .field.full { grid-column: 1 / -1; }
+  .field > span, fieldset legend { font: 600 .78rem var(--mono); letter-spacing: .08em; color: var(--pink-soft); }
+  .req { color: var(--pink); }
+  input, select, textarea {
+    font: 1rem 'Space Grotesk', sans-serif; color: var(--text); width: 100%;
+    background: rgba(255,255,255,.04); border: 1px solid rgba(224,138,221,.25); border-radius: 10px; padding: 12px 14px;
+    transition: border-color .2s, background .2s;
+  }
+  select option { background: #1a0a1a; }
+  input:focus, select:focus, textarea:focus { outline: none; border-color: var(--pink); background: rgba(117,31,114,.15); }
+  textarea { min-height: 150px; resize: vertical; line-height: 1.5; }
+  fieldset { border: 0; display: grid; gap: 8px; }
+  .choices { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 8px; margin-top: 4px; }
+  .choice {
+    display: flex; gap: 10px; align-items: flex-start; cursor: pointer;
+    border: 1px solid rgba(224,138,221,.2); border-radius: 10px; padding: 11px 12px; transition: border-color .2s, background .2s;
+  }
+  .choice:has(input:checked) { border-color: var(--pink); background: rgba(117,31,114,.22); }
+  .choice input { width: auto; margin-top: 3px; accent-color: var(--pink); }
+  .counter { justify-self: end; font: .72rem var(--mono); color: var(--muted); }
+  .consent { display: flex; gap: 10px; align-items: flex-start; color: var(--muted); font-size: .92rem; line-height: 1.5; }
+  .consent input { width: auto; margin-top: 4px; accent-color: var(--pink); }
+  .hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+  .form-end { display: flex; flex-wrap: wrap; gap: 16px; align-items: center; }
+  .form-note { font: .75rem var(--mono); color: var(--muted); }
+  .form-ok { grid-column: 1 / -1; font: .9rem var(--mono); color: var(--blue-2); min-height: 1.2em; }
+
+  footer { padding: 50px 6vw 120px; border-top: 1px solid var(--line); color: var(--muted); font-size: .9rem; display: flex; flex-wrap: wrap; gap: 14px 40px; }
+  footer .mono { font-family: var(--mono); font-size: .8rem; }
+
+  /* ---------- Bloch dock ---------- */
+  .dock { z-index: 20; font-family: var(--mono); color: var(--pink-soft); }
+  .dock canvas { display: block; touch-action: none; cursor: grab; }
+  .dock canvas.dragging { cursor: grabbing; }
+  .dock canvas.over-marker { cursor: pointer; }
+  .panel {
+    background: rgba(26,10,26,.7); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+    border: 1px solid rgba(224,138,221,.22); border-radius: 16px; padding: 14px 16px; font-size: .78rem;
+  }
+  .panel-head { display: flex; align-items: center; gap: 8px; font-size: .68rem; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); }
+  .panel-head .live { width: 7px; height: 7px; border-radius: 50%; background: #4ade80; box-shadow: 0 0 8px #4ade80; }
+  .mode { margin-left: auto; padding: 2px 8px; border-radius: 999px; background: rgba(150,172,212,.14); color: var(--blue-2); letter-spacing: .08em; }
+  .ketline { margin: 10px 0 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .ketline .psi { color: var(--pink); }
+  .secline { color: var(--muted); }
+  .secline b { color: var(--text); }
+  .gates { display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px; margin-top: 12px; }
+  .gates button {
+    font: 600 .85rem var(--mono); color: var(--text); cursor: pointer;
+    background: rgba(117,31,114,.3); border: 1px solid rgba(224,138,221,.35); border-radius: 8px;
+    padding: 8px 0; transition: background .15s, transform .1s;
+  }
+  .gates button:hover { background: rgba(117,31,114,.6); }
+  .gates button:active { transform: scale(.94); }
+  .result { min-height: 1.3em; margin-top: 10px; color: var(--blue-2); font-size: .72rem; }
+  .dock-hint { margin-top: 6px; font-size: .68rem; color: rgba(191,176,190,.7); line-height: 1.6; }
+  .dock-toggle { display: none; }
+
+  @media (min-width: 1000px) {
+    main, footer { margin-right: var(--dock-w); }
+    .dock {
+      position: fixed; top: var(--nav-h); right: 0; bottom: 0; width: var(--dock-w);
+      display: flex; flex-direction: column; padding: 10px 24px 24px;
+      border-left: 1px solid var(--line);
+      background: radial-gradient(circle at 50% 42%, rgba(117,31,114,.28), transparent 65%);
+    }
+    .dock canvas { flex: 1; min-height: 0; width: 100%; }
+  }
+  @media (max-width: 999px) {
+    :root { --nav-h: 60px; }
+    .navlinks { display: none; }
+    .nav-right { margin-left: auto; }
+    section.sec { padding-left: 20px; padding-right: 20px; }
+    form.apply { grid-template-columns: 1fr; }
+    .hint { display: none; }
+    h1.title { font-size: clamp(3rem, 14vw, 6rem); }
+    .dock {
+      position: fixed; right: 12px; bottom: 12px; width: 112px;
+      border-radius: 18px; border: 1px solid rgba(224,138,221,.3);
+      background: rgba(26,10,26,.82); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+      box-shadow: 0 16px 50px rgba(0,0,0,.45); overflow: hidden;
+    }
+    .dock canvas { width: 112px; height: 112px; }
+    .dock .panel { display: none; border: 0; border-radius: 0; background: transparent; }
+    .dock.open { width: min(360px, calc(100vw - 24px)); }
+    .dock.open canvas { width: 100%; height: 190px; }
+    .dock.open .panel { display: block; }
+    .dock-hint { display: none; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .btn, .logo-card { transition: none; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="top">
+  <a class="logo" href="#hero">|qubito<span>⟩</span></a>
+  <div class="navlinks">
+    <a href="#about" data-k="1" data-en="About" data-it="L'evento"></a>
+    <a href="#programme" data-k="2" data-en="Programme" data-it="Programma"></a>
+    <a href="#partners" data-k="3" data-en="Partners" data-it="Partner"></a>
+    <a href="#faq" data-k="4" data-en="FAQ" data-it="FAQ"></a>
+    <a href="#team" data-k="5" data-en="Team" data-it="Team"></a>
+  </div>
+  <div class="nav-right">
+    <a class="btn btn-primary btn-sm" href="#apply" data-en="Apply" data-it="Candidati"></a>
+    <div class="lang" role="group" aria-label="Language">
+      <button data-lang="en" aria-pressed="true">EN</button>
+      <button data-lang="it" aria-pressed="false">IT</button>
+    </div>
+  </div>
+</nav>
+
+<main>
+  <!-- 0 · |0⟩ -->
+  <section class="sec hero" id="hero" data-sec>
+    <p class="eyebrow q" data-observe data-en="Qubito · Politecnico di Torino" data-it="Qubito · Politecnico di Torino"></p>
+    <h1 class="title q" data-observe data-en="QUBITO HACKATHON" data-it="QUBITO HACKATHON"></h1>
+    <p class="sub q" data-observe data-en="24 hours of quantum computing" data-it="24 ore di calcolo quantistico"></p>
+    <p class="date q" data-observe data-en="11 — 13 December 2026 · Torino" data-it="11 — 13 dicembre 2026 · Torino"></p>
+    <div class="countdown">
+      <span class="cd-ket" id="cd" aria-live="off"></span>
+      <span class="cd-label" data-en="until the opening talks" data-it="all'inizio dei talk"></span>
+    </div>
+    <div class="controls">
+      <a class="btn btn-primary" href="#apply" data-en="Apply now →" data-it="Candidati ora →"></a>
+      <a class="btn btn-ghost" href="#programme" data-en="Programme" data-it="Programma"></a>
+    </div>
+    <p class="hint">
+      <span data-en="Hover the title to observe it. Every section is a state on the Bloch sphere: scroll and the qubit follows, apply a gate and it collapses onto the nearest section and takes you there. Try"
+            data-it="Passa sul titolo per osservarlo. Ogni sezione è uno stato sulla sfera di Bloch: scorri e il qubit ti segue, applica una porta e collassa sulla sezione più vicina portandoti lì. Prova"></span>
+      <kbd>X</kbd> <kbd>H</kbd> <kbd>Y</kbd> <kbd>√X</kbd>
+    </p>
+  </section>
+
+  <section class="sec" id="about" data-sec>
+    <span class="idx"></span>
+    <h2 class="q" data-scroll data-en="A quantum hackathon" data-it="Un hackathon quantistico"></h2>
+    <p class="lead" data-en="Qubito, the quantum computing student team of Politecnico di Torino, brings together students, researchers and companies for three days. First, partner companies present real problems. Then teams have 24 hours to solve them with quantum algorithms, simulators and real hardware."
+       data-it="Qubito, il team studentesco di quantum computing del Politecnico di Torino, riunisce studenti, ricercatori e aziende per tre giorni. Prima le aziende partner presentano problemi reali, poi i team hanno 24 ore per risolverli con algoritmi quantistici, simulatori e hardware reale."></p>
+    <div class="stats">
+      <div class="stat"><b>24h</b><span data-en="of non-stop hacking" data-it="di hacking non-stop"></span></div>
+      <div class="stat"><b>3</b><span data-en="days, 11–13 December" data-it="giorni, 11–13 dicembre"></span></div>
+      <div class="stat"><b>3–5</b><span data-en="people per team (TBC)" data-it="persone per team (da confermare)"></span></div>
+      <div class="stat"><b>€ ?</b><span data-en="in prizes (TBA)" data-it="di premi (da annunciare)"></span></div>
+    </div>
+  </section>
+
+  <section class="sec" id="programme" data-sec>
+    <span class="idx"></span>
+    <h2 class="q" data-scroll data-en="Programme" data-it="Programma"></h2>
+    <p class="lead"><span data-en="Times are placeholders." data-it="Gli orari sono provvisori."></span><span class="placeholder-tag">draft</span></p>
+    <div class="days">
+      <div class="day">
+        <div class="day-head"><span class="ket">|11.12⟩</span><h3 data-en="Company talks" data-it="Talk delle aziende"></h3></div>
+        <ul class="wire">
+          <li><time>14:00</time><div><strong data-en="Welcome" data-it="Benvenuto"></strong><small data-en="Opening by Qubito and Politecnico di Torino" data-it="Apertura di Qubito e del Politecnico di Torino"></small></div></li>
+          <li><time>14:30</time><div><strong>Partner A</strong><small data-en="Talk: a real-world problem for quantum" data-it="Talk: un problema reale per il quantum"></small></div></li>
+          <li><time>15:15</time><div><strong>Partner B</strong><small data-en="Talk: hardware and tooling" data-it="Talk: hardware e strumenti"></small></div></li>
+          <li><time>16:30</time><div><strong>Partner C</strong><small data-en="Talk + Q&A" data-it="Talk + Q&A"></small></div></li>
+          <li><time>17:30</time><div><strong data-en="Networking aperitivo" data-it="Aperitivo di networking"></strong></div></li>
+        </ul>
+      </div>
+      <div class="day">
+        <div class="day-head"><span class="ket">|12.12⟩</span><h3 data-en="Hackathon starts" data-it="Inizia l'hackathon"></h3></div>
+        <ul class="wire">
+          <li><time>09:00</time><div><strong data-en="Check-in and breakfast" data-it="Check-in e colazione"></strong></div></li>
+          <li><time>10:00</time><div><strong data-en="Challenges revealed" data-it="Presentazione delle sfide"></strong><small data-en="Teams pick a challenge from the partners" data-it="I team scelgono una sfida dei partner"></small></div></li>
+          <li class="big"><time>10:30</time><div><strong data-en="Hacking begins" data-it="Inizio hacking"></strong><small data-en="24 hours, mentors on site" data-it="24 ore, mentor in sede"></small></div></li>
+        </ul>
+      </div>
+      <div class="day">
+        <div class="day-head"><span class="ket">|13.12⟩</span><h3 data-en="Pitches and awards" data-it="Pitch e premiazione"></h3></div>
+        <ul class="wire">
+          <li class="big"><time>10:30</time><div><strong data-en="Hacking ends" data-it="Fine hacking"></strong></div></li>
+          <li><time>11:00</time><div><strong data-en="Pitches" data-it="Pitch"></strong><small data-en="5 minutes per team" data-it="5 minuti per team"></small></div></li>
+          <li><time>13:00</time><div><strong data-en="Awards and closing" data-it="Premiazione e chiusura"></strong></div></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec" id="partners" data-sec>
+    <span class="idx"></span>
+    <h2 class="q" data-scroll data-en="Partners" data-it="Partner"></h2>
+    <p class="lead" data-en="The companies and institutions that make the hackathon possible."
+       data-it="Le aziende e le istituzioni che rendono possibile l'hackathon."></p>
+
+    <div class="tier">
+      <div class="tier-label" data-en="Main partner" data-it="Main partner"></div>
+      <div class="logos main"><a class="logo-card" href="#"><span class="ph">MAIN PARTNER</span></a></div>
+    </div>
+    <div class="tier">
+      <div class="tier-label">Gold</div>
+      <div class="logos gold">
+        <a class="logo-card" href="#"><span class="ph">GOLD A</span></a>
+        <a class="logo-card" href="#"><span class="ph">GOLD B</span></a>
+        <a class="logo-card" href="#"><span class="ph">GOLD C</span></a>
+      </div>
+    </div>
+    <div class="tier">
+      <div class="tier-label">Silver</div>
+      <div class="logos silver">
+        <a class="logo-card" href="#"><span class="ph">SILVER A</span></a>
+        <a class="logo-card" href="#"><span class="ph">SILVER B</span></a>
+        <a class="logo-card" href="#"><span class="ph">SILVER C</span></a>
+        <a class="logo-card" href="#"><span class="ph">SILVER D</span></a>
+      </div>
+    </div>
+    <div class="tier">
+      <div class="tier-label" data-en="Academic & community partners" data-it="Partner accademici e community"></div>
+      <div class="logos comm">
+        <a class="logo-card" href="#"><span class="ph">POLITO</span></a>
+        <a class="logo-card" href="#"><span class="ph">DEPT</span></a>
+        <a class="logo-card" href="#"><span class="ph">COMMUNITY</span></a>
+        <a class="logo-card" href="#"><span class="ph">MEDIA</span></a>
+        <a class="logo-card" href="#"><span class="ph">CLOUD</span></a>
+      </div>
+    </div>
+
+    <div class="become">
+      <div>
+        <h3 data-en="Want your company here?" data-it="Vuoi la tua azienda qui?"></h3>
+        <p data-en="Present a challenge, meet motivated quantum talent and support the student community."
+           data-it="Proponi una sfida, incontra giovani talenti del quantum e sostieni la community studentesca."></p>
+      </div>
+      <div class="cta">
+        <a class="btn btn-primary btn-sm" href="#" data-en="Partnership kit (PDF)" data-it="Kit partnership (PDF)"></a>
+        <a class="btn btn-ghost btn-sm" href="mailto:example@example.com" data-en="Write to us" data-it="Scrivici"></a>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec" id="faq" data-sec>
+    <span class="idx"></span>
+    <h2 class="q" data-scroll data-en="FAQ" data-it="FAQ"></h2>
+    <div class="faq">
+      <details><summary data-en="Who can apply?" data-it="Chi può candidarsi?"></summary>
+        <p data-en="Bachelor's, master's and PhD students. Final eligibility rules to be confirmed." data-it="Studenti di triennale, magistrale e dottorato. Requisiti definitivi da confermare."></p></details>
+      <details><summary data-en="Do I need to know quantum computing?" data-it="Devo conoscere il quantum computing?"></summary>
+        <p data-en="No. Curiosity is enough: we look for mixed teams, and mentors will help you get started." data-it="No. Basta la curiosità: cerchiamo team misti e i mentor ti aiuteranno a partire."></p></details>
+      <details><summary data-en="Does it cost anything?" data-it="È a pagamento?"></summary>
+        <p data-en="Participation is free. Food during the hackathon is on us." data-it="La partecipazione è gratuita. Il cibo durante l'hackathon è offerto da noi."></p></details>
+      <details><summary data-en="Can I apply without a team?" data-it="Posso candidarmi senza un team?"></summary>
+        <p data-en="Yes. Apply on your own and we will help you find teammates before the event." data-it="Sì. Candidati da solo e ti aiuteremo a trovare compagni prima dell'evento."></p></details>
+      <details><summary data-en="What should I bring?" data-it="Cosa devo portare?"></summary>
+        <p data-en="A laptop, a charger, an ID and whatever you need to survive 24 hours." data-it="Un portatile, il caricatore, un documento e ciò che ti serve per sopravvivere 24 ore."></p></details>
+      <details><summary data-en="What language is the event in?" data-it="In che lingua si svolge l'evento?"></summary>
+        <p data-en="English, to be confirmed." data-it="Inglese, da confermare."></p></details>
+    </div>
+  </section>
+
+  <section class="sec" id="team" data-sec>
+    <span class="idx"></span>
+    <h2 class="q" data-scroll data-en="The team" data-it="Il team"></h2>
+    <p class="lead" data-en="The Qubito students organising the hackathon." data-it="Gli studenti di Qubito che organizzano l'hackathon."></p>
+    <div class="team">
+      <div class="member"><div class="avatar">NS</div><strong>Name Surname</strong><small data-en="Coordination" data-it="Coordinamento"></small></div>
+      <div class="member"><div class="avatar">NS</div><strong>Name Surname</strong><small data-en="Partners" data-it="Partner"></small></div>
+      <div class="member"><div class="avatar">NS</div><strong>Name Surname</strong><small data-en="Logistics" data-it="Logistica"></small></div>
+      <div class="member"><div class="avatar">NS</div><strong>Name Surname</strong><small data-en="Communication" data-it="Comunicazione"></small></div>
+      <div class="member"><div class="avatar">NS</div><strong>Name Surname</strong><small data-en="Challenges" data-it="Sfide"></small></div>
+      <div class="member"><div class="avatar">NS</div><strong>Name Surname</strong><small data-en="Website" data-it="Sito web"></small></div>
+    </div>
+  </section>
+
+  <!-- N-1 · |1⟩ -->
+  <section class="sec" id="apply" data-sec>
+    <span class="idx"></span>
+    <h2 class="q" data-scroll data-en="Apply" data-it="Candidati"></h2>
+    <p class="lead"><span data-en="Applications close on [date TBA]. We will reply by email." data-it="Le candidature chiudono il [data da definire]. Ti risponderemo via email."></span></p>
+
+    <form class="apply" id="apply-form" novalidate>
+      <label class="field"><span><span data-en="Name" data-it="Nome"></span> <span class="req">*</span></span>
+        <input name="name" required maxlength="80" autocomplete="given-name"></label>
+      <label class="field"><span><span data-en="Surname" data-it="Cognome"></span> <span class="req">*</span></span>
+        <input name="surname" required maxlength="80" autocomplete="family-name"></label>
+      <label class="field full"><span>Email <span class="req">*</span></span>
+        <input name="email" type="email" required maxlength="120" autocomplete="email"></label>
+
+      <label class="field"><span><span data-en="What are you doing now?" data-it="Cosa stai facendo ora?"></span> <span class="req">*</span></span>
+        <select name="level" required>
+          <option value="" data-en="Choose…" data-it="Scegli…"></option>
+          <option value="bachelor" data-en="Bachelor's degree" data-it="Laurea triennale"></option>
+          <option value="master" data-en="Master's degree" data-it="Laurea magistrale"></option>
+          <option value="phd" data-en="PhD" data-it="Dottorato"></option>
+          <option value="other" data-en="Other" data-it="Altro"></option>
+        </select></label>
+      <label class="field"><span><span data-en="University" data-it="Università"></span> <span class="req">*</span></span>
+        <input name="university" required maxlength="120" data-en-ph="e.g. Politecnico di Torino" data-it-ph="es. Politecnico di Torino"></label>
+      <label class="field full"><span><span data-en="What do you study?" data-it="Cosa studi?"></span> <span class="req">*</span></span>
+        <input name="field" required maxlength="120" data-en-ph="e.g. Physics, Computer Engineering, Mathematics…" data-it-ph="es. Fisica, Ingegneria Informatica, Matematica…"></label>
+
+      <fieldset class="field full">
+        <legend><span data-en="Your relationship with quantum" data-it="Il tuo rapporto con il quantum"></span> <span class="req">*</span></legend>
+        <div class="choices">
+          <label class="choice"><input type="radio" name="quantum" value="curious" required><span data-en="Curious, no experience yet" data-it="Curioso, nessuna esperienza"></span></label>
+          <label class="choice"><input type="radio" name="quantum" value="course"><span data-en="I took a course on it" data-it="Ho seguito un corso"></span></label>
+          <label class="choice"><input type="radio" name="quantum" value="sdk"><span data-en="I used Qiskit, PennyLane, Cirq or similar" data-it="Ho usato Qiskit, PennyLane, Cirq o simili"></span></label>
+          <label class="choice"><input type="radio" name="quantum" value="research"><span data-en="Thesis or research in the field" data-it="Tesi o ricerca nel campo"></span></label>
+        </div>
+      </fieldset>
+
+      <label class="field full"><span><span data-en="Why do you want to participate?" data-it="Perché vuoi partecipare?"></span> <span class="req">*</span></span>
+        <textarea name="statement" required minlength="50" maxlength="1500" id="statement"
+          data-en-ph="Tell us what draws you to the hackathon and what you would like to build or learn."
+          data-it-ph="Raccontaci cosa ti attira dell'hackathon e cosa vorresti costruire o imparare."></textarea>
+        <span class="counter" id="statement-count">0 / 1500</span></label>
+
+      <label class="field full"><span data-en="Team (optional)" data-it="Team (facoltativo)"></span>
+        <select name="team">
+          <option value="solo" data-en="Applying alone, happy to be matched" data-it="Mi candido da solo, felice di essere abbinato"></option>
+          <option value="team" data-en="I already have a team (we will ask for names later)" data-it="Ho già un team (chiederemo i nomi dopo)"></option>
+        </select></label>
+
+      <!-- honeypot: humans never see it, bots fill it -->
+      <div class="hp" aria-hidden="true"><label>Website <input name="website" tabindex="-1" autocomplete="off"></label></div>
+
+      <label class="consent full field" style="grid-column:1/-1">
+        <input type="checkbox" name="consent" required>
+        <span data-en="I have read the privacy notice and agree to the processing of my data for this application. (Link to notice TBA.)"
+              data-it="Ho letto l'informativa privacy e acconsento al trattamento dei miei dati per questa candidatura. (Link all'informativa da aggiungere.)"></span>
+      </label>
+
+      <div class="form-end full field" style="grid-column:1/-1">
+        <button class="btn btn-primary" type="submit" data-en="Send application" data-it="Invia candidatura"></button>
+        <span class="form-note" data-en="Demo: nothing is sent." data-it="Demo: non viene inviato nulla."></span>
+      </div>
+      <p class="form-ok" id="form-ok" role="status"></p>
+    </form>
+  </section>
+</main>
+
+<footer>
+  <span class="mono">|qubito⟩ · Politecnico di Torino</span>
+  <span data-en="Demo · all content is placeholder" data-it="Demo · tutti i contenuti sono provvisori"></span>
+</footer>
+
+<aside class="dock" id="dock" aria-label="Interactive qubit">
+  <canvas id="bloch" aria-hidden="true"></canvas>
+  <div class="panel">
+    <div class="panel-head"><span class="live"></span><span data-en="live qubit" data-it="qubit live"></span><span class="mode" id="mode">scroll</span></div>
+    <div class="ketline"><span class="psi">|ψ⟩ =</span> <span id="ket"></span></div>
+    <div class="secline"><span id="secprob"></span></div>
+    <div class="gates">
+      <button data-gate="H" title="Hadamard">H</button>
+      <button data-gate="X" title="Pauli-X">X</button>
+      <button data-gate="Y" title="Pauli-Y">Y</button>
+      <button data-gate="Z" title="Pauli-Z">Z</button>
+      <button data-gate="S" title="Phase π/2">S</button>
+      <button data-gate="SX" title="Square root of X">√X</button>
+    </div>
+    <div class="result" id="result"></div>
+    <div class="dock-hint" data-en="Drag to rotate · click a dot to jump · keys H X Y Z S"
+         data-it="Trascina per ruotare · clicca un punto per saltare · tasti H X Y Z S"></div>
+  </div>
+</aside>
+
+<div class="observer" aria-hidden="true"></div>
+
+<script>
+(() => {
+  const RM = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const COARSE = matchMedia('(pointer: coarse)').matches;
+  const MOBILE = () => innerWidth < 1000;
+  let lang = 'en';
+
+  const SECTIONS = [...document.querySelectorAll('[data-sec]')];
+  const N = SECTIONS.length;
+  const NAMES = {
+    hero:      { en: 'Home',      it: 'Home' },
+    about:     { en: 'About',     it: "L'evento" },
+    programme: { en: 'Programme', it: 'Programma' },
+    partners:  { en: 'Partners',  it: 'Partner' },
+    faq:       { en: 'FAQ',       it: 'FAQ' },
+    team:      { en: 'Team',      it: 'Team' },
+    apply:     { en: 'Apply',     it: 'Candidati' },
+  };
+  const secName = k => (NAMES[SECTIONS[k].id] || { en: SECTIONS[k].id })[lang] || SECTIONS[k].id;
+
+  // ---------- vector math ----------
+  const TAU = Math.PI * 2;
+  const dot = (a, b) => a[0]*b[0] + a[1]*b[1] + a[2]*b[2];
+  const cross = (a, b) => [a[1]*b[2] - a[2]*b[1], a[2]*b[0] - a[0]*b[2], a[0]*b[1] - a[1]*b[0]];
+  const scale = (a, s) => [a[0]*s, a[1]*s, a[2]*s];
+  const norm = a => { const l = Math.hypot(a[0], a[1], a[2]) || 1; return [a[0]/l, a[1]/l, a[2]/l]; };
+  const clamp = (x, a, b) => Math.max(a, Math.min(b, x));
+  const ease = t => t < .5 ? 4*t*t*t : 1 - Math.pow(-2*t + 2, 3) / 2;
+  const smooth = t => t * t * (3 - 2 * t);
+  function rot(p, n, a) {
+    const c = Math.cos(a), s = Math.sin(a), k = dot(n, p) * (1 - c), x = cross(n, p);
+    return [p[0]*c + x[0]*s + n[0]*k, p[1]*c + x[1]*s + n[1]*k, p[2]*c + x[2]*s + n[2]*k];
+  }
+  // shortest rotation taking a onto b
+  function axisAngle(a, b) {
+    let ax = cross(a, b);
+    const s = Math.hypot(ax[0], ax[1], ax[2]), c = clamp(dot(a, b), -1, 1);
+    if (s < 1e-6) {
+      if (c > 0) return { axis: [1, 0, 0], angle: 0 };
+      ax = Math.abs(a[0]) < .9 ? cross(a, [1, 0, 0]) : cross(a, [0, 1, 0]);
+      return { axis: norm(ax), angle: Math.PI };
+    }
+    return { axis: scale(ax, 1 / s), angle: Math.atan2(s, c) };
+  }
+  function slerp(a, b, t) {
+    const { axis, angle } = axisAngle(a, b);
+    return angle < 1e-6 ? b : norm(rot(a, axis, angle * t));
+  }
+
+  // Each section is a state on a spiral from |0⟩ (hero) down to |1⟩ (apply)
+  const STATES = SECTIONS.map((_, k) => {
+    const th = k * Math.PI / (N - 1), ph = k * Math.PI / 2;
+    return norm([Math.sin(th) * Math.cos(ph), Math.sin(th) * Math.sin(ph), Math.cos(th)]);
+  });
+  const nearest = p => STATES.reduce((best, s, k) => dot(p, s) > dot(p, STATES[best]) ? k : best, 0);
+  const deg = r => Math.round(r * 180 / Math.PI);
+  SECTIONS.forEach((sec, k) => {
+    const idx = sec.querySelector('.idx');
+    if (!idx) return;
+    const th = k * Math.PI / (N - 1), ph = (k * Math.PI / 2) % TAU;
+    idx.textContent = `${String(k).padStart(2, '0')} · θ=${deg(th)}° φ=${deg(ph)}°`;
+  });
+
+  const S2 = Math.SQRT1_2;
+  const GATES = {
+    H:  { axis: [S2, 0, S2], angle: Math.PI,   label: 'H' },
+    X:  { axis: [1, 0, 0],   angle: Math.PI,   label: 'X' },
+    Y:  { axis: [0, 1, 0],   angle: Math.PI,   label: 'Y' },
+    Z:  { axis: [0, 0, 1],   angle: Math.PI,   label: 'Z' },
+    S:  { axis: [0, 0, 1],   angle: Math.PI/2, label: 'S' },
+    SX: { axis: [1, 0, 0],   angle: Math.PI/2, label: '√X' },
+  };
+
+  // =====================================================================
+  //  Superposition text (from superposition-title.html)
+  // =====================================================================
+  const GLYPHS = [...'ψφθΨΦΩαβγλħΣΠ∂∇⊗⊕†∞01⟩⟨'];
+  const OBSERVE_R = 75;
+  const live = new Set();
+
+  class QText {
+    constructor(el) { this.el = el; this.letters = []; this.gen = 0; }
+    set(text, superposed) {
+      this.gen++;
+      this.letters.forEach(l => live.delete(l));
+      this.el.textContent = '';
+      this.el.setAttribute('aria-label', text);
+      this.letters = [];
+      text.split(' ').forEach((word, i, words) => {
+        const w = document.createElement('span');
+        w.className = 'qw'; w.setAttribute('aria-hidden', 'true');
+        for (const ch of word) {
+          const s = document.createElement('span');
+          s.className = 'ql'; s.textContent = ch;
+          w.appendChild(s);
+          this.letters.push({ el: s, final: ch, sup: false, next: 0 });
+        }
+        this.el.appendChild(w);
+        if (i < words.length - 1) this.el.appendChild(document.createTextNode(' '));
+      });
+      // lock each letter's width to its real glyph so flickering doesn't shift the layout
+      const fs = parseFloat(getComputedStyle(this.el).fontSize);
+      for (const l of this.letters) l.el.style.width = `${l.el.getBoundingClientRect().width / fs}em`;
+      if (superposed && !RM) this.letters.forEach(decohere);
+    }
+    collapseWave(step = 45, delay = 0) {
+      const gen = this.gen;
+      this.letters.forEach((l, i) =>
+        setTimeout(() => { if (this.gen === gen) collapse(l); }, delay + i * step + Math.random() * 40));
+    }
+    decohereAll() { this.gen++; this.letters.forEach(decohere); }
+    get anySup() { return this.letters.some(l => l.sup); }
+  }
+  function decohere(l) {
+    if (RM || l.sup) return;
+    l.sup = true; l.next = 0;
+    l.el.classList.remove('flash'); l.el.classList.add('sup');
+    live.add(l);
+  }
+  function collapse(l) {
+    if (!l.sup) return;
+    l.sup = false; live.delete(l);
+    l.el.textContent = l.final;
+    l.el.classList.remove('sup');
+    void l.el.offsetWidth;
+    l.el.classList.add('flash');
+  }
+
+  const qEls = [...document.querySelectorAll('.q')];
+  const q = new Map(qEls.map(el => [el, new QText(el)]));
+  const heroQ = qEls.filter(el => el.hasAttribute('data-observe')).map(el => q.get(el));
+  const scrollQ = qEls.filter(el => el.hasAttribute('data-scroll')).map(el => q.get(el));
+  const plainEls = [...document.querySelectorAll('[data-en]:not(.q)')];
+  const phEls = [...document.querySelectorAll('[data-en-ph]')];
+
+  function applyPlainText() {
+    for (const el of plainEls) el.textContent = el.dataset[lang];
+    for (const el of phEls) el.placeholder = el.dataset[lang + 'Ph'];
+    document.documentElement.lang = lang;
+  }
+
+  let autoTimer;
+  function scheduleAutoMeasure(ms) {
+    clearTimeout(autoTimer);
+    autoTimer = setTimeout(() => heroQ.forEach((t, i) => t.anySup && t.collapseWave(45, i * 250)), ms);
+  }
+
+  function remeasureSection(k) {
+    const targets = k === 0 ? [heroQ[1]] : [...SECTIONS[k].querySelectorAll('.q')].map(el => q.get(el));
+    targets.forEach(t => { t.decohereAll(); t.collapseWave(45, 300); });
+  }
+
+  // mouse observation of the hero
+  const ring = document.querySelector('.observer');
+  let mx = -999, my = -999, rx = -999, ry = -999, pending = false;
+  addEventListener('pointermove', e => {
+    if (e.pointerType !== 'mouse') return;
+    mx = e.clientX; my = e.clientY;
+    if (rx < -900) { rx = mx; ry = my; }
+    const overHero = SECTIONS[0].getBoundingClientRect().bottom > my && !e.target.closest('.dock, nav');
+    ring.classList.toggle('on', overHero);
+    if (overHero && !pending) { pending = true; requestAnimationFrame(observe); }
+  });
+  document.addEventListener('mouseleave', () => ring.classList.remove('on'));
+  function observe() {
+    pending = false;
+    let hot = false;
+    for (const t of heroQ) for (const l of t.letters) {
+      if (!l.sup) continue;
+      const r = l.el.getBoundingClientRect();
+      const d = Math.hypot(r.left + r.width / 2 - mx, r.top + r.height / 2 - my);
+      if (d < OBSERVE_R) collapse(l);
+      else if (d < OBSERVE_R * 2) hot = true;
+    }
+    ring.classList.toggle('hot', hot);
+  }
+  document.querySelector('h1.title').addEventListener('click', () => {
+    if (!COARSE) return;
+    const t = heroQ[1]; t.decohereAll(); t.collapseWave(60, 500);
+  });
+
+  // =====================================================================
+  //  Bloch sphere, synced with the sections
+  // =====================================================================
+  const dock = document.getElementById('dock');
+  const canvas = document.getElementById('bloch');
+  const ctx = canvas.getContext('2d');
+  let W = 1, H = 1, cx = 0, cy = 0, R = 1;
+
+  function resize() {
+    const dpr = Math.min(devicePixelRatio || 1, 2);
+    W = canvas.clientWidth; H = canvas.clientHeight;
+    canvas.width = Math.round(W * dpr); canvas.height = Math.round(H * dpr);
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    cx = W / 2; cy = H / 2;
+    R = Math.min(W, H) * (W < 200 ? 0.34 : 0.3);
+  }
+  new ResizeObserver(resize).observe(canvas);
+
+  let yaw = -0.6, pitch = 0.38;
+  function proj(p) {
+    const ca = Math.cos(yaw), sa = Math.sin(yaw), cb = Math.cos(pitch), sb = Math.sin(pitch);
+    const x1 = p[0]*ca - p[1]*sa, y1 = p[0]*sa + p[1]*ca, z1 = p[2];
+    const y2 = y1*cb - z1*sb, z2 = y1*sb + z1*cb;
+    return { x: cx + x1 * R, y: cy - z2 * R, d: y2 }; // d < 0 → facing the viewer
+  }
+
+  let v = STATES[0];
+  let active = 0;          // section the qubit is currently "in"
+  let anim = null;         // running rotation
+  let hold = null;         // after a gate jump, pin the qubit while the page scrolls
+  let flash = null;
+  const queue = [];
+  const trail = [];
+
+  // where scrolling says the qubit should be
+  function scrollTarget() {
+    const doc = document.documentElement;
+    if (scrollY + innerHeight >= doc.scrollHeight - 4) return { vec: STATES[N - 1], k: N - 1 };
+    const line = innerHeight * 0.35;
+    const tops = SECTIONS.map(s => s.getBoundingClientRect().top);
+    let k = 0;
+    while (k < N - 1 && tops[k + 1] <= line) k++;
+    if (k === N - 1) return { vec: STATES[k], k };
+    const frac = clamp((line - tops[k]) / (tops[k + 1] - tops[k]), 0, 1);
+    // rest on the section's state while reading, move during the second half
+    const f = smooth(clamp((frac - .5) / .45, 0, 1));
+    return { vec: slerp(STATES[k], STATES[k + 1], f), k: f > .5 ? k + 1 : k };
+  }
+
+  function sectionY(k) {
+    const top = SECTIONS[k].getBoundingClientRect().top + scrollY;
+    return clamp(k === 0 ? 0 : top, 0, document.documentElement.scrollHeight - innerHeight);
+  }
+  function scrollToSection(k) {
+    const y = sectionY(k);
+    hold = { k, y, until: performance.now() + 1800 };
+    scrollTo({ top: y, behavior: RM ? 'auto' : 'smooth' });
+  }
+
+  function enqueue(item) {
+    if (queue.length < 3) queue.push(item);
+    setMode('you');
+  }
+
+  function startNext(now) {
+    const item = queue.shift();
+    if (item.type === 'gate') {
+      const g = GATES[item.gate];
+      anim = { axis: g.axis, angle: g.angle, from: v, start: now, dur: RM ? 1 : 850, label: g.label, then: 'collapse' };
+    } else {
+      const { axis, angle } = axisAngle(v, STATES[item.k]);
+      anim = { axis, angle, from: v, start: now, dur: RM ? 1 : (item.collapse ? 480 : 850), label: null,
+               then: { k: item.k, p: (1 + dot(v, STATES[item.k])) / 2, collapse: item.collapse } };
+    }
+  }
+
+  function finishAnim(now) {
+    const a = anim; anim = null;
+    if (a.then === 'collapse') {
+      queue.unshift({ type: 'goto', k: nearest(v), collapse: true });
+      return;
+    }
+    const k = a.then.k;
+    v = STATES[k];
+    flash = { pole: v, start: now };
+    els.result.textContent = a.then.collapse
+      ? `${lang === 'it' ? 'misurato' : 'measured'} → |${secName(k)}⟩   (p = ${a.then.p.toFixed(2)})`
+      : `→ |${secName(k)}⟩`;
+    setActive(k);
+    scrollToSection(k);
+    remeasureSection(k);
+  }
+
+  // ---------- drawing ----------
+  function strokeCurve(fn, frontA, backA, width) {
+    const n = 72, front = new Path2D(), back = new Path2D();
+    let p0 = proj(fn(0));
+    for (let i = 1; i <= n; i++) {
+      const p1 = proj(fn(i / n * TAU));
+      const path = (p0.d + p1.d) / 2 < 0 ? front : back;
+      path.moveTo(p0.x, p0.y); path.lineTo(p1.x, p1.y);
+      p0 = p1;
+    }
+    ctx.lineWidth = width;
+    ctx.strokeStyle = `rgba(224,138,221,${backA})`; ctx.stroke(back);
+    ctx.strokeStyle = `rgba(224,138,221,${frontA})`; ctx.stroke(front);
+  }
+  function line(a, b, style, width, dash) {
+    ctx.save();
+    ctx.strokeStyle = style; ctx.lineWidth = width;
+    if (dash) ctx.setLineDash(dash);
+    ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.stroke();
+    ctx.restore();
+  }
+
+  let hoverMarker = -1;
+  function draw(now) {
+    ctx.clearRect(0, 0, W, H);
+    const small = W < 200;
+
+    let g = ctx.createRadialGradient(cx, cy, R * 0.3, cx, cy, R * 1.8);
+    g.addColorStop(0, 'rgba(117,31,114,0.30)'); g.addColorStop(1, 'rgba(117,31,114,0)');
+    ctx.fillStyle = g; ctx.beginPath(); ctx.arc(cx, cy, R * 1.8, 0, TAU); ctx.fill();
+    g = ctx.createRadialGradient(cx - R * .35, cy - R * .4, R * .05, cx, cy, R);
+    g.addColorStop(0, 'rgba(240,223,238,0.14)'); g.addColorStop(.6, 'rgba(117,31,114,0.12)'); g.addColorStop(1, 'rgba(48,13,45,0.45)');
+    ctx.fillStyle = g; ctx.beginPath(); ctx.arc(cx, cy, R, 0, TAU); ctx.fill();
+
+    for (const d of [30, 60, 120, 150]) {
+      const th = d * Math.PI / 180, st = Math.sin(th), ct = Math.cos(th);
+      strokeCurve(t => [st * Math.cos(t), st * Math.sin(t), ct], .18, .045, 1);
+    }
+    for (let k = 0; k < 6; k++) {
+      const ph = k * Math.PI / 6, cp = Math.cos(ph), sp = Math.sin(ph);
+      strokeCurve(t => [Math.sin(t) * cp, Math.sin(t) * sp, Math.cos(t)], .15, .04, 1);
+    }
+    strokeCurve(t => [Math.cos(t), Math.sin(t), 0], .5, .12, 1.3);
+    ctx.strokeStyle = 'rgba(224,138,221,0.5)'; ctx.lineWidth = 1.4;
+    ctx.beginPath(); ctx.arc(cx, cy, R, 0, TAU); ctx.stroke();
+
+    const o = proj([0, 0, 0]);
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    for (const dir of [[0,0,1],[0,0,-1],[1,0,0],[-1,0,0],[0,1,0],[0,-1,0]]) {
+      const end = proj(scale(dir, 1.18));
+      line(o, end, `rgba(224,138,221,${end.d < 0 ? .35 : .16})`, 1, [3, 5]);
+    }
+    if (!small) {
+      ctx.font = '12px "JetBrains Mono", monospace';
+      for (const [dir, lab] of [[[0,0,1], '|0⟩'], [[0,0,-1], '|1⟩']]) {
+        const p = proj(scale(dir, 1.5));
+        ctx.fillStyle = `rgba(250,249,250,${p.d < 0 ? .7 : .4})`;
+        ctx.fillText(lab, p.x, p.y);
+      }
+    }
+
+    // section path (the spiral) + markers
+    ctx.save();
+    ctx.setLineDash([2, 5]); ctx.lineWidth = 1.2;
+    for (let k = 0; k < N - 1; k++) {
+      let prev = proj(STATES[k]);
+      for (let i = 1; i <= 16; i++) {
+        const p = proj(slerp(STATES[k], STATES[k + 1], i / 16));
+        ctx.strokeStyle = `rgba(150,172,212,${(prev.d + p.d) / 2 < 0 ? .55 : .2})`;
+        ctx.beginPath(); ctx.moveTo(prev.x, prev.y); ctx.lineTo(p.x, p.y); ctx.stroke();
+        prev = p;
+      }
+    }
+    ctx.restore();
+
+    ctx.font = '600 12px "Space Grotesk", sans-serif';
+    STATES.forEach((s, k) => {
+      const p = proj(s), front = p.d < 0, on = k === active, hov = k === hoverMarker;
+      const r = small ? (on ? 3.5 : 2.5) : (on ? 7 : hov ? 6 : 4.5);
+      ctx.beginPath(); ctx.arc(p.x, p.y, r, 0, TAU);
+      ctx.fillStyle = on ? '#e08add' : `rgba(150,172,212,${front ? .95 : .4})`;
+      ctx.fill();
+      if (on && !small) { ctx.strokeStyle = 'rgba(224,138,221,.6)'; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.arc(p.x, p.y, 12, 0, TAU); ctx.stroke(); }
+      if (!small) {
+        const lp = proj(scale(s, 1.22));
+        const dx = lp.x - cx;
+        ctx.textAlign = Math.abs(dx) < 8 ? 'center' : dx > 0 ? 'left' : 'right';
+        ctx.fillStyle = on ? '#fff' : `rgba(250,249,250,${hov ? .95 : front ? .75 : .38})`;
+        ctx.fillText(secName(k), lp.x + Math.sign(dx) * 4, lp.y + (k === 0 ? -16 : k === N - 1 ? 16 : 0));
+      }
+    });
+    ctx.textAlign = 'center';
+
+    // gate rotation axis
+    if (anim && anim.label) {
+      const t = clamp((now - anim.start) / anim.dur, 0, 1), a = Math.sin(Math.PI * t);
+      const p1 = proj(scale(anim.axis, 1.4)), p2 = proj(scale(anim.axis, -1.4));
+      line(p2, p1, `rgba(150,172,212,${(.85 * a).toFixed(3)})`, 2);
+      if (!small) {
+        ctx.save(); ctx.globalAlpha = a;
+        ctx.fillStyle = 'rgba(20,8,20,.9)'; ctx.strokeStyle = '#96acd4'; ctx.lineWidth = 1.5;
+        ctx.beginPath(); ctx.roundRect(p1.x - 17, p1.y - 14, 34, 28, 6); ctx.fill(); ctx.stroke();
+        ctx.fillStyle = '#96acd4'; ctx.font = '600 14px "JetBrains Mono", monospace';
+        ctx.fillText(anim.label, p1.x, p1.y + 1);
+        ctx.restore();
+      }
+    }
+
+    // trail
+    if (trail.length > 1) {
+      ctx.lineWidth = 2; ctx.lineCap = 'round';
+      let prev = proj(trail[0]);
+      for (let i = 1; i < trail.length; i++) {
+        const p = proj(trail[i]);
+        ctx.strokeStyle = `rgba(240,223,238,${(Math.pow(i / trail.length, 1.6) * (p.d < 0 ? .7 : .3)).toFixed(3)})`;
+        ctx.beginPath(); ctx.moveTo(prev.x, prev.y); ctx.lineTo(p.x, p.y); ctx.stroke();
+        prev = p;
+      }
+    }
+
+    // state vector
+    const tip = proj(v), foot = proj([v[0], v[1], 0]);
+    line(tip, foot, 'rgba(240,223,238,.3)', 1, [2, 4]);
+    line(o, foot, 'rgba(240,223,238,.2)', 1, [2, 4]);
+    ctx.save();
+    ctx.shadowColor = '#e08add'; ctx.shadowBlur = 20;
+    const lg = ctx.createLinearGradient(o.x, o.y, tip.x, tip.y);
+    lg.addColorStop(0, 'rgba(224,138,221,.85)'); lg.addColorStop(1, '#fdf4ff');
+    ctx.strokeStyle = lg; ctx.lineWidth = small ? 2 : 3; ctx.lineCap = 'round';
+    ctx.beginPath(); ctx.moveTo(o.x, o.y); ctx.lineTo(tip.x, tip.y); ctx.stroke();
+    const dx = tip.x - o.x, dy = tip.y - o.y, len = Math.hypot(dx, dy);
+    if (len > 14) {
+      const ux = dx / len, uy = dy / len, s = small ? 8 : 13;
+      ctx.fillStyle = '#fdf4ff';
+      ctx.beginPath();
+      ctx.moveTo(tip.x + ux * 4, tip.y + uy * 4);
+      ctx.lineTo(tip.x - ux * s - uy * s * .5, tip.y - uy * s + ux * s * .5);
+      ctx.lineTo(tip.x - ux * s + uy * s * .5, tip.y - uy * s - ux * s * .5);
+      ctx.closePath(); ctx.fill();
+    }
+    ctx.restore();
+
+    if (flash) {
+      const t = (now - flash.start) / 1000;
+      if (t > 1) flash = null;
+      else {
+        const p = proj(flash.pole);
+        for (const k of [0, .25]) {
+          const tt = clamp(t - k, 0, 1);
+          ctx.strokeStyle = `rgba(150,172,212,${(1 - tt).toFixed(3)})`;
+          ctx.lineWidth = 2;
+          ctx.beginPath(); ctx.arc(p.x, p.y, 8 + tt * (small ? 30 : 60), 0, TAU); ctx.stroke();
+        }
+      }
+    }
+  }
+
+  // ---------- readout ----------
+  const $ = id => document.getElementById(id);
+  const els = { ket: $('ket'), secprob: $('secprob'), mode: $('mode'), result: $('result') };
+  const f3 = x => (Math.abs(x) < 5e-4 ? 0 : x).toFixed(3);
+  function readout() {
+    const th = Math.acos(clamp(v[2], -1, 1)), ph = Math.atan2(v[1], v[0]);
+    const a = Math.cos(th / 2), b = Math.sin(th / 2);
+    const br = b * Math.cos(ph), bi = b * Math.sin(ph);
+    const ket = `${f3(a)}|0⟩ + (${f3(br)} ${bi < -5e-4 ? '−' : '+'} ${f3(Math.abs(bi))}i)|1⟩`;
+    if (els.ket.textContent !== ket) els.ket.textContent = ket;
+    const k = nearest(v), p = (1 + dot(v, STATES[k])) / 2;
+    const sp = `|⟨${secName(k)}|ψ⟩|² = ${p.toFixed(2)}`;
+    if (els.secprob.textContent !== sp) els.secprob.textContent = sp;
+  }
+  function setMode(m) { if (els.mode.textContent !== m) els.mode.textContent = m; }
+
+  const navLinks = [...document.querySelectorAll('.navlinks a')];
+  function setActive(k) {
+    if (k === active) return;
+    active = k;
+    navLinks.forEach(a => a.classList.toggle('active', +a.dataset.k === k));
+  }
+
+  // ---------- main loop ----------
+  let prev = performance.now();
+  let nextFluct = prev + 4000;
+  function frame(now) {
+    const dt = Math.min(.05, (now - prev) / 1000); prev = now;
+
+    if (anim) {
+      const t = clamp((now - anim.start) / anim.dur, 0, 1);
+      v = rot(anim.from, anim.axis, anim.angle * ease(t));
+      if (t >= 1) { v = norm(v); finishAnim(now); }
+    } else if (queue.length) {
+      startNext(now);
+    } else {
+      let tgt, k;
+      if (hold) {
+        tgt = STATES[hold.k]; k = hold.k;
+        if (now > hold.until || Math.abs(scrollY - hold.y) < 3) hold = null;
+      } else {
+        ({ vec: tgt, k } = scrollTarget());
+        setMode('scroll');
+      }
+      v = RM ? tgt : slerp(v, tgt, 1 - Math.exp(-dt * 8));
+      setActive(k);
+    }
+
+    trail.push(v);
+    if (trail.length > 90) trail.shift();
+
+    // flicker superposed letters
+    for (const l of live) {
+      if (now < l.next) continue;
+      l.next = now + 45 + Math.random() * 110;
+      l.el.textContent = Math.random() < .22 ? l.final : GLYPHS[Math.random() * GLYPHS.length | 0];
+      l.el.style.setProperty('--gx', `${((Math.random() * 2 - 1) * .08).toFixed(3)}em`);
+      l.el.style.setProperty('--o', (.45 + Math.random() * .5).toFixed(2));
+    }
+    // occasional fluctuation of one hero letter
+    if (!RM && now > nextFluct) {
+      nextFluct = now + 2500 + Math.random() * 3000;
+      const title = heroQ[1];
+      if (title.letters.every(l => !l.sup) && active === 0) {
+        const l = title.letters[Math.random() * title.letters.length | 0];
+        decohere(l);
+        setTimeout(() => collapse(l), 350 + Math.random() * 300);
+      }
+    }
+    if (rx > -900) {
+      rx += (mx - rx) * .25; ry += (my - ry) * .25;
+      ring.style.transform = `translate(${rx}px, ${ry}px)`;
+    }
+
+    draw(now);
+    readout();
+    requestAnimationFrame(frame);
+  }
+
+  // ---------- input ----------
+  function markerAt(x, y) {
+    let best = -1, bd = 18;
+    STATES.forEach((s, k) => {
+      const p = proj(s), d = Math.hypot(p.x - x, p.y - y) - (p.d < 0 ? 4 : 0);
+      if (d < bd) { bd = d; best = k; }
+    });
+    return best;
+  }
+  let dragging = false, moved = 0, px = 0, py = 0;
+  canvas.addEventListener('pointerdown', e => {
+    dragging = true; moved = 0; px = e.clientX; py = e.clientY;
+    canvas.setPointerCapture(e.pointerId);
+  });
+  canvas.addEventListener('pointermove', e => {
+    const r = canvas.getBoundingClientRect();
+    if (!dragging) {
+      hoverMarker = W < 200 ? -1 : markerAt(e.clientX - r.left, e.clientY - r.top);
+      canvas.classList.toggle('over-marker', hoverMarker >= 0);
+      return;
+    }
+    const dx = e.clientX - px, dy = e.clientY - py;
+    moved += Math.abs(dx) + Math.abs(dy);
+    if (moved > 5) canvas.classList.add('dragging');
+    yaw += dx * 0.008;
+    pitch = clamp(pitch + dy * 0.006, -1.2, 1.2);
+    px = e.clientX; py = e.clientY;
+  });
+  canvas.addEventListener('pointerup', e => {
+    dragging = false; canvas.classList.remove('dragging');
+    if (moved > 5) return;
+    // a click: jump to a marker, or (on the small mobile dock) open the panel
+    const r = canvas.getBoundingClientRect();
+    const k = W < 200 ? -1 : markerAt(e.clientX - r.left, e.clientY - r.top);
+    if (k >= 0) { queue.length = 0; enqueue({ type: 'goto', k }); }
+    else if (MOBILE()) dock.classList.toggle('open');
+  });
+  canvas.addEventListener('pointercancel', () => { dragging = false; canvas.classList.remove('dragging'); });
+  canvas.addEventListener('pointerleave', () => { hoverMarker = -1; canvas.classList.remove('over-marker'); });
+
+  document.querySelectorAll('[data-gate]').forEach(b =>
+    b.addEventListener('click', () => enqueue({ type: 'gate', gate: b.dataset.gate })));
+
+  addEventListener('keydown', e => {
+    if (e.ctrlKey || e.metaKey || e.altKey || e.repeat) return;
+    if (e.target.closest('input, textarea, select, [contenteditable]')) return;
+    const k = e.key.toUpperCase();
+    if (GATES[k]) enqueue({ type: 'gate', gate: k });
+  });
+
+  // nav links: let the scroll drive the qubit through the sections on the way
+  document.querySelectorAll('a[href^="#"]').forEach(a => a.addEventListener('click', e => {
+    const k = SECTIONS.findIndex(s => '#' + s.id === a.getAttribute('href'));
+    if (k < 0) return;
+    e.preventDefault();
+    hold = null;
+    scrollTo({ top: sectionY(k), behavior: RM ? 'auto' : 'smooth' });
+  }));
+
+  // ---------- language ----------
+  document.querySelectorAll('[data-lang]').forEach(b => b.addEventListener('click', () => {
+    if (b.dataset.lang === lang) return;
+    lang = b.dataset.lang;
+    document.querySelectorAll('[data-lang]').forEach(x => x.setAttribute('aria-pressed', x === b));
+    applyPlainText();
+    for (const t of q.values()) {
+      const r = t.el.getBoundingClientRect();
+      t.set(t.el.dataset[lang], true);
+      if (r.bottom > 0 && r.top < innerHeight) t.collapseWave(35, 450);
+    }
+  }));
+
+  // ---------- section headings collapse when scrolled into view ----------
+  function setupScroll() {
+    const byEl = new Map(scrollQ.map(t => [t.el, t]));
+    const io = new IntersectionObserver(entries => {
+      for (const e of entries) {
+        const t = byEl.get(e.target);
+        if (e.isIntersecting) t.collapseWave(55, 150);
+        else t.decohereAll();
+      }
+    }, { threshold: .6 });
+    scrollQ.forEach(t => io.observe(t.el));
+  }
+
+  // ---------- countdown ----------
+  const T0 = new Date('2026-12-11T14:00:00+01:00').getTime();
+  const cd = $('cd');
+  const pad = n => String(n).padStart(2, '0');
+  function countdown() {
+    let s = Math.max(0, Math.floor((T0 - Date.now()) / 1000));
+    const d = Math.floor(s / 86400); s %= 86400;
+    const h = Math.floor(s / 3600); s %= 3600;
+    const m = Math.floor(s / 60); s %= 60;
+    cd.innerHTML = `<span class="br">|</span>${d}d ${pad(h)}h ${pad(m)}m ${pad(s)}s<span class="br">⟩</span>`;
+  }
+
+  // ---------- form (demo only) ----------
+  const form = $('apply-form'), statement = $('statement'), sc = $('statement-count'), ok = $('form-ok');
+  statement.addEventListener('input', () => { sc.textContent = `${statement.value.length} / 1500`; });
+  form.addEventListener('submit', e => {
+    e.preventDefault();
+    if (!form.checkValidity()) { form.reportValidity(); return; }
+    if (form.website.value) return; // honeypot
+    ok.textContent = lang === 'it'
+      ? '|candidatura⟩ misurata. (Demo: nessun dato è stato inviato.)'
+      : '|application⟩ measured. (Demo: no data was sent.)';
+  });
+
+  // ---------- init ----------
+  function init() {
+    applyPlainText();
+    for (const t of q.values()) t.set(t.el.dataset[lang], true);
+    scheduleAutoMeasure(COARSE ? 1200 : 5000);
+    setupScroll();
+    countdown(); setInterval(countdown, 1000);
+    resize();
+    requestAnimationFrame(frame);
+  }
+  (document.fonts ? document.fonts.ready : Promise.resolve()).then(init);
+})();
+</script>
+</body>
+</html>
