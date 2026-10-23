@@ -1,0 +1,64 @@
+<!doctype html>
+<!-- Source of the link preview image. Export at exactly 1200x630:
+     chrome --headless=new --hide-scrollbars --window-size=1200,630 --screenshot=og-image.png og-image.html -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Qubito Hackathon preview image</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { width: 1200px; height: 630px; overflow: hidden; background: #080808; }
+  body { font-family: 'Space Grotesk', sans-serif; color: #faf9fa; display: grid; grid-template-columns: 1fr 430px; gap: 36px; padding: 56px 56px 52px 72px; }
+  .left { display: flex; flex-direction: column; }
+  .brand { display: flex; align-items: center; gap: 16px; }
+  .brand img { height: 46px; filter: invert(1); }
+  .brand span { font: 500 20px 'JetBrains Mono', monospace; color: #b9b1b8; padding-left: 16px; border-left: 1px solid #3a333a; letter-spacing: .04em; }
+  h1 { font-size: 112px; font-weight: 700; line-height: .86; letter-spacing: -.05em; margin-top: 64px; }
+  h1 .pink { color: #e08add; }
+  .sub { font-size: 30px; margin-top: 26px; }
+  .meta { margin-top: auto; display: flex; gap: 14px; align-items: center; }
+  .pill { font: 600 22px 'JetBrains Mono', monospace; padding: 10px 20px; border-radius: 999px; background: #e08add; color: #1a0619; }
+  .pill.ghost { background: #1c151c; color: #faf9fa; }
+  .stage { background: #751f72; border-radius: 28px; display: grid; place-items: center; position: relative; }
+  .stage .url { position: absolute; bottom: 22px; left: 0; right: 0; text-align: center; font: 500 18px 'JetBrains Mono', monospace; color: #ecd2ea; }
+</style>
+</head>
+<body>
+  <div class="left">
+    <div class="brand"><img src="../logos/qubito.svg" alt=""><span>hackathon</span></div>
+    <h1>QUBITO<br><span class="pink">HACKATHON</span></h1>
+    <p class="sub">24 hours of quantum computing</p>
+    <div class="meta">
+      <span class="pill">11–13 DEC 2026</span>
+      <span class="pill ghost">TORINO</span>
+    </div>
+  </div>
+  <div class="stage">
+    <!-- flat Bloch sphere, same style as the site -->
+    <svg width="340" height="400" viewBox="-170 -200 340 400" font-family="JetBrains Mono, monospace" fill="none">
+      <circle r="130" fill="rgba(42,11,40,.28)" stroke="rgba(255,255,255,.55)" stroke-width="1.5"/>
+      <ellipse rx="130" ry="36" stroke="rgba(255,255,255,.5)" stroke-width="1.2"/>
+      <ellipse rx="112" ry="31" cy="-65" stroke="rgba(255,255,255,.16)"/>
+      <ellipse rx="112" ry="31" cy="65" stroke="rgba(255,255,255,.16)"/>
+      <ellipse rx="44" ry="130" stroke="rgba(255,255,255,.16)"/>
+      <ellipse rx="96" ry="130" stroke="rgba(255,255,255,.12)"/>
+      <line y1="-150" y2="150" stroke="rgba(255,255,255,.3)" stroke-dasharray="3 5"/>
+      <line x1="-150" x2="150" stroke="rgba(255,255,255,.18)" stroke-dasharray="3 5"/>
+      <!-- section path (spiral) -->
+      <path d="M0 -130 C 60 -120, 110 -70, 118 -10 S 70 100, 0 130" stroke="rgba(201,214,239,.8)" stroke-dasharray="1.5 5" stroke-width="1.5"/>
+      <!-- state vector on the equator, pointing to its front-left point (towards the viewer).
+           (-85, 27) lies exactly on the equator ellipse rx=130 ry=36, so the length matches the radius in 3D -->
+      <line x1="0" y1="0" x2="-75" y2="24" stroke="#fff" stroke-width="3" stroke-linecap="round"/>
+      <path d="M-85 27 L-72.8 28.9 L-76.2 18.5 Z" fill="#fff"/>
+      <rect x="-5" y="-5" width="10" height="10" fill="#fff"/>
+      <rect x="-5" y="-135" width="10" height="10" fill="rgba(255,255,255,.85)"/>
+      <rect x="113" y="-15" width="10" height="10" fill="rgba(255,255,255,.85)"/>
+      <rect x="-5" y="125" width="10" height="10" fill="rgba(255,255,255,.85)"/>
+      <text y="-168" text-anchor="middle" fill="rgba(255,255,255,.85)" font-size="20">|0⟩</text>
+      <text y="182" text-anchor="middle" fill="rgba(255,255,255,.85)" font-size="20">|1⟩</text>
+    </svg>
+    <div class="url">qubito.polito.it/hackathon</div>
+  </div>
+</body>
+</html>
